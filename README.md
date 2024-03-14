@@ -47,3 +47,6 @@ We first briefly review the standard adversarial training formulation for GANs. 
 D tries to maximize the objective by assigning higher probabilities to real samples x and lower probabilities to generated fake samples G(z). Conversely, G tries to minimize the objective, generating samples G(z) that can fool the discriminator into thinking they are real, i.e. D(G(z)) approaches 1.
 
 In practice, G and D are implemented as deep neural networks like convolutional networks trained by backpropagating gradients from the objective. Stabilizing this adversarial training process requires carefully balancing the learning rates and convergence of G and D.
+
+
+## more coming shortly...
