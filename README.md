@@ -22,3 +22,26 @@ These adjustments are dampened by scaling factors to reduce induced noise and in
 We instantiate the GCANN architecture in two forms: 1) A Deep Convolutional Generative GCANN (DCGGCANN) for image generation trained on the CelebA dataset, and 2) A DCGGCANN for 3D model generation on the 3DBiCar dataset of 3D Biped Cartoon Characters. Compared to conventional GAN training, our DCGGCANN models show improved convergence between the discriminator and generator losses during the training process. This increased stability results in higher visual quality for the generated images and 3D models.
 
 While implemented specifically for DCGANs, the core GCANN architecture is broadly applicable to other forms of adversarial training like conditional GANs, VAEs, self-supervised learning, and beyond. The dynamic learning rate adjustment, with both reactive and proactive components based on loss monitoring and slope estimation, provides a simple yet powerful mechanism for maintaining balanced convergence to stabilize the adversarial training process.
+
+
+
+
+##The contributions of this work are:
+
+Introducing the Guided Convergence Adversarial Neural Network (GCANN) architecture with dynamic learning rate adjustment techniques to maintain balanced discriminator/generator convergence, including proactive adjustment based on monitoring the slope of the loss difference.
+Employing dampening techniques, selective skipping of training iterations, and a cooldown period to prevent overcorrection and instability during the adjustment process.
+Instantiating DCGGCANNs for image generation and 3D model generation tasks.
+Evaluating the DCGGCANNs, showing improved training convergence and sample quality over conventional GAN baselines.
+In the following sections, we describe the GCANN methodology, experimental evaluation of the DCGGCANNs, and discuss future directions for this architecture.
+
+##Guided Convergence Adversarial Neural Networks
+
+##2.1 Background on Adversarial Training
+
+We first briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
+
+`min_G max_D V(D,G) = E_{xp_data}[log D(x)] + E_{zp_z}[log(1-D(G(z)))]`
+
+D tries to maximize the objective by assigning higher probabilities to real samples x and lower probabilities to generated fake samples G(z). Conversely, G tries to minimize the objective, generating samples G(z) that can fool the discriminator into thinking they are real, i.e. D(G(z)) approaches 1.
+
+In practice, G and D are implemented as deep neural networks like convolutional networks trained by backpropagating gradients from the objective. Stabilizing this adversarial training process requires carefully balancing the learning rates and convergence of G and D.
