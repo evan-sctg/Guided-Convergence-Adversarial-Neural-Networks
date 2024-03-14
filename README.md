@@ -1,7 +1,9 @@
 # Guided Convergence Adversarial Neural Networks
 
+## Author
 ### Evan Estal
 [https://www.linkedin.com/in/evan-e/)](https://www.linkedin.com/in/evan-e/)
+
 
 ## Abstract
 
