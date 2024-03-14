@@ -36,7 +36,7 @@ In the following sections, we describe the GCANN methodology, experimental evalu
 
 ## Guided Convergence Adversarial Neural Networks
 
-## 2.1 Background on Adversarial Training
+## Background on Adversarial Training
 
 We first briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
 
