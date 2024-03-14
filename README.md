@@ -26,7 +26,7 @@ While implemented specifically for DCGANs, the core GCANN architecture is broadl
 
 
 
-##The contributions of this work are:
+## The contributions of this work are:
 
 Introducing the Guided Convergence Adversarial Neural Network (GCANN) architecture with dynamic learning rate adjustment techniques to maintain balanced discriminator/generator convergence, including proactive adjustment based on monitoring the slope of the loss difference.
 Employing dampening techniques, selective skipping of training iterations, and a cooldown period to prevent overcorrection and instability during the adjustment process.
@@ -34,9 +34,9 @@ Instantiating DCGGCANNs for image generation and 3D model generation tasks.
 Evaluating the DCGGCANNs, showing improved training convergence and sample quality over conventional GAN baselines.
 In the following sections, we describe the GCANN methodology, experimental evaluation of the DCGGCANNs, and discuss future directions for this architecture.
 
-##Guided Convergence Adversarial Neural Networks
+## Guided Convergence Adversarial Neural Networks
 
-##2.1 Background on Adversarial Training
+## 2.1 Background on Adversarial Training
 
 We first briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
 
