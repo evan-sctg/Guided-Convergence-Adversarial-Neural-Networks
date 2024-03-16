@@ -7,11 +7,11 @@
 
 ## Abstract
 
-We propose a new architecture for adversarial neural networks called Guided Convergence Adversarial Neural Networks (GCANNs). GCANNs introduce mechanisms to dynamically adjust the learning rates of the discriminator and generator networks during training based on monitoring their respective loss values and the slope of the loss difference over time. This allows maintaining an optimal convergence state where neither network significantly overpowers the other. When losses diverge beyond set thresholds, or when the slope of the loss difference exceeds an adaptive threshold indicating impending divergence, the learning rates are adjusted proportionally to counteract the divergence. We also employ dampening techniques and selectively skip training iterations for the overpowered network to reduce noise and allow the lagging network to catch up. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment. Additionally, we incorporate a diversity loss term that penalizes repetitive generated samples within each batch to mitigate mode collapse. The diversity loss is calculated at a specified diversity check interval and scaled between a top-end and bottom-end diversity loss value. Our Deep Convolutional Generative GCANN (DCG-GCANN) models achieve improved training convergence, higher visual quality for generated images and 3D models, and better sample diversity compared to standard GAN training procedures. The GCANN represents a simple but effective approach for stabilizing adversarial training across diverse domains.
+We propose a new architecture for adversarial neural networks called Guided Convergence Adversarial Neural Networks (GCANNs). GCANNs introduce mechanisms to dynamically adjust the learning rates of the discriminator and generator networks during training based on monitoring their respective loss values and the slope of the loss difference over time. This allows for maintaining an optimal convergence state where neither network significantly overpowers the other. When losses diverge beyond set thresholds, or when the slope of the loss difference exceeds an adaptive threshold indicating impending divergence, the learning rates are adjusted proportionally to counteract the divergence. We also employ dampening techniques and selectively skip training iterations for the overpowered network to reduce noise and allow the lagging network to catch up. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment. Additionally, we incorporate a diversity loss term that penalizes repetitive generated samples within each batch to mitigate mode collapse. The diversity loss is calculated at a specified diversity check interval and scaled between a top-end and bottom-end diversity loss value. Our Deep Convolutional Generative GCANN (DCG-GCANN) models achieve improved training convergence, higher visual quality for generated images and 3D models, and better sample diversity compared to standard GAN training procedures. The GCANN represents a simple but effective approach for stabilizing adversarial training across diverse domains.
 
 ## Introduction
 
-Generative adversarial networks (GANs) have become a widely-used framework for generative modeling tasks like image synthesis, 3D object generation, audio/speech synthesis, and others. However, training GANs in a stable manner remains an open challenge due to difficulties in balancing the convergence of the generator and discriminator networks. If the discriminator significantly overpowers the generator, it can perfectly classify real vs. fake samples, making it impossible for the generator to improve. Conversely, if an overpowered generator fools a weak discriminator, it receives misleading feedback suggesting its poor samples are highly realistic. Another major issue for GANs is mode collapse, where the generator learns to produce repeated samples from a small subset of the true data distribution.
+Generative adversarial networks (GANs) have become a widely used framework for generative modeling tasks like image synthesis, 3D object generation, audio/speech synthesis, and others. However, training GANs in a stable manner remains an open challenge due to difficulties in balancing the convergence of the generator and discriminator networks. If the discriminator significantly overpowers the generator, it can perfectly classify real vs. fake samples, making it impossible for the generator to improve. Conversely, if an overpowered generator fools a weak discriminator, it receives misleading feedback suggesting its poor samples are highly realistic. Another major issue for GANs is mode collapse, where the generator learns to produce repeated samples from a small subset of the true data distribution.
 
 Conventional techniques for stabilizing GAN training like gradient penalties, spectral normalization, and learning rate scheduling have shown success to an extent. However, these methods are often heuristic in nature without directly optimizing for balanced discriminator/generator convergence. They also fail to adapt to the actual convergence state during the training process and cannot anticipate impending divergences before they occur. Approaches to mitigate mode collapse like mini-batch discrimination have helped but still struggle with preserving sample diversity.
 
@@ -47,8 +47,9 @@ Evaluating the DCG-GCANNs, showing improved training convergence, sample quality
 ## Background on Adversarial Training
 
 We first briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
-
+```
 min_G max_D V(D,G) = E_{xp_data}[log D(x)] + E_{zp_z}[log(1-D(G(z)))]
+```
 
 D tries to maximize the objective by assigning higher probabilities to real samples x and lower probabilities to generated fake samples G(z). Conversely, G tries to minimize the objective, generating samples G(z) that can fool the discriminator into thinking they are real, i.e. D(G(z)) approaches 1.
 
@@ -63,7 +64,7 @@ In practice, G and D are implemented as deep neural networks like convolutional 
 The Guided Convergence Adversarial Neural Network (GCANN) introduces mechanisms to dynamically adjust the learning rates of the discriminator D and generator G based on monitoring their respective loss values and the slope of the loss difference during training. This allows maintaining an optimal convergence state where neither network overpowers the other.
 
 Let L_D and L_G represent the current losses for D and G respectively at iteration t. We define a max_loss_diff threshold that bounds the acceptable range of loss differences |L_D - L_G|. If the losses diverge beyond this threshold, the learning rates need adjusting:
-
+```
 If L_D - L_G > max_loss_diff:
 Discriminator D is overpowering generator G
 Decrease D's learning rate: lr_D *= (1 - α)
@@ -73,22 +74,25 @@ If L_G - L_D > max_loss_diff:
 Generator G is overpowering discriminator D
 Decrease G's learning rate: lr_G *= (1 - β)
 Increase D's learning rate: lr_D *= (1 + α)
+```
 
 The learning rate adjustments are scaled by factors α and β in (0,1) to dampen the changes and reduce induced noise/instability.
 
 We also employ an "anticipatory" technique to proactively adjust the learning rates before divergence occurs, based on monitoring the slope of the loss difference over time. We define a window size gc_lr_window and calculate the moving averages d_loss_mean and g_loss_mean over the last gc_lr_window iterations:
-
+```
 d_loss_mean = sum(L_D[t-gc_lr_window:t]) / gc_lr_window
 g_loss_mean = sum(L_G[t-gc_lr_window:t]) / gc_lr_window
+```
 
 We then calculate the loss difference loss_diff = |d_loss_mean - g_loss_mean| and estimate its slope over the window:
-
+```
 loss_diff_slope = (loss_diff - prev_loss_diff) / gc_lr_window
+```
 
 A target slope range (target_slope_range) is defined as the desired range for the loss_diff_slope to maintain stable training. If loss_diff_slope falls outside this range, it indicates potential divergence.
 
 The slope threshold slope_threshold is adaptively calculated by monitoring periods of stable convergence where loss_diff_slope remains below slope_threshold for an extended duration. The maximum slope observed during these stable regions is used to update slope_threshold to a fraction (controlled by target_slope_aggressiveness) of the stable maximum. This allows the threshold to become more sensitive as training progresses while being robust to noise.
-
+```
 If epoch > baseline_epochs and ((loss_diff_slope > slope_threshold) or (d_loss_mean < g_loss_mean and loss_diff > max_loss_diff) or (d_loss_mean > g_loss_mean)):
 impending divergence, proactively adjust the learning rates
 
@@ -101,28 +105,32 @@ Else:
 Decrease G's learning rate: lr_G *= (1 - β)
 Increase D's learning rate: lr_D *= (1 + α)
 Skip p update steps for G while training D
+```
 
-The proactive learning rate adjustment based on the adaptive slope_threshold allows preventing divergence before it occurs, further stabilizing the adversarial training dynamics.
+The proactive learning rate adjustment based on the adaptive slope_threshold allows for preventing divergence before it occurs, further stabilizing the adversarial training dynamics.
 
 We also selectively skip training iterations for the overpowered network while allowing the counterpart lagging network to continue training for a few steps p, adapting recent unrolled techniques to the GCANN framework. The number of iterations to skip (skip_iterations) is dynamically scaled by a factor skip_iter_scale which increases if the discriminator is lagging and decreases if it is overpowering.
 
 To address mode collapse, we incorporate a diversity loss term L_div into the generator's objective to penalize repetitive samples being generated within each batch. The diversity loss is calculated by measuring the pairwise distances or dissimilarities between the generated samples in the current batch:
-
+```
 L_div = diversity_metric(G(z))
+```
 
 Where diversity_metric computes a diversity score like pairwise distances between the samples G(z) in the batch. Higher diversity scores indicate more diverse/dissimilar samples.
 
 The overall generator objective becomes:
-
+```
 min_G L_G + λ * L_div
+```
 
 Where λ is a weighting factor diversity_weight controlling the strength of the diversity loss term. The diversity loss L_div is computed at a specified diversity_check_interval during training.
 
 To bound the impact of the diversity loss, we set a topend_diversity_loss and bottomend_diversity_loss threshold. The scaled diversity loss is computed as:
-
+```
 L_div_scaled = bottomend_diversity_loss + (L_div * diversity_weight) / (1 - exp(-topend_diversity_loss))
+```
 
-This scales the diversity loss between the bottomend and topend thresholds using a sigmoid-like function.
+This scales the diversity loss between the bottom-end and top-end thresholds using a sigmoid-like function.
 
 The diversity loss encourages the generator to produce varied, diverse samples within each batch, mitigating mode collapse while the GCANN rate adjustment mechanisms maintain stable training convergence.
 
@@ -139,10 +147,10 @@ Input: Initial D, G learning rates lr_D, lr_G; adjustment dampenings α, β; ski
 Initialize: slope_threshold, max_stable_slope, stable_region_start_idx, stable_region_end_idx, loss_diff_slopes, iterations_since_last_adjustment = 0, skip_iter_scale, slope_thresh_scale
 
 While not converged:
-
+```
 Compute current losses L_D, L_G
 loss_diff = |L_D - L_G|
-`
+
 
 Pause/skip based on losses
 if L_D <= discriminator_pause_threshold:
@@ -210,20 +218,20 @@ g_loss = criterion(fake_output, torch.ones_like(fake_output))
 
 g_loss.backward()
 opt_g.step()
-`
+```
 Return: Trained D, G networks
 
 
 The key aspects are:
 
 Pause/skip training based on losses falling below/exceeding thresholds
-Calculate moving averages and loss diff slope over window
+Calculate moving averages and loss diff slope over the window
 Detect stable convergence regions to adapt slope threshold
-Adjust learning rates if losses diverge or slope exceeds threshold
+Adjust learning rates if losses diverge or the slope exceeds the threshold
 Selectively skip training overpowered network for some iterations
-Use dampening factors and cooldown period for stability
+Use dampening factors and a cooldown period for stability
 Dynamic scaling of skip iterations and slope threshold
-Incorporate diversity loss into generator objective
+Incorporate diversity loss into the generator objective
 Scale diversity loss between top-end and bottom-end bounds
 
 The dynamic pausing/skipping mechanisms along with the proactive slope-based adjustments and diversity loss allow the GCANN to maintain balanced discriminator/generator convergence and sample diversity throughout training.
@@ -237,16 +245,16 @@ We instantiate and evaluate the GCANN architecture on two generative modeling ta
 
 DCG-GCANN for Image Generation: We apply the GCANN mechanisms to a Deep Convolutional GAN (DCGAN) architecture for generating images on the CelebA dataset of celebrity face images at 64x64 resolution. Key hyperparameters are: max_loss_diff=3, target_slope_range=(-0.1, 0.1), gc_lr_window=100, discriminator_pause_threshold=0.025, generator_pause_threshold=0.01, discriminator_skip_threshold=0.05, generator_skip_threshold=0.05, max_skip_iterations=25, cooldown_period=100, baseline_epochs=1, diversity_weight=1, diversity_check_interval=5, topend_diversity_loss=3, bottomend_diversity_loss=0.001.
 
-DCG-GCANN for 3D Model Generation: We also apply the GCANN to 3D generative modeling using a DCGAN architecture that takes input random noise and generates voxelized 3D shapes. We train this 3D DCGGCANN on the 3DBiCar dataset containing renderings of 3D Biped Cartoon Characters. Initial learning rates are lr_D=1e-4, lr_G=1e-4 with dampening α=0.8, β=0.6, max_loss_diff=3, diversity_weight=1, diversity_check_interval=10, topend_diversity_loss=5, bottomend_diversity_loss=0.01 and a cooldown period of 150 iterations. Separate variables are used for pausing and skipping, with a target_slope_range of (0.001, 0.2) and a maximum of 30 skipped iterations.
+DCG-GCANN for 3D Model Generation: We also apply the GCANN to 3D generative modeling using a DCGAN architecture that takes input random noise and generates voxelized 3D shapes. We train this 3D DCG-GCANN on the 3DBiCar dataset containing renderings of 3D Biped Cartoon Characters. Initial learning rates are lr_D=1e-4, lr_G=1e-4 with dampening α=0.8, β=0.6, max_loss_diff=3, diversity_weight=1, diversity_check_interval=10, topend_diversity_loss=5, bottomend_diversity_loss=0.01 and a cooldown period of 150 iterations. Separate variables are used for pausing and skipping, with a target_slope_range of (0.001, 0.2) and a maximum of 30 skipped iterations.
 
 For both experiments, we train our GCANNs and baselines for 100 epochs with a batch size of 128. We compare the discriminator and generator losses, their convergence over training, the diversity loss curves, as well as the visual quality of generated samples. For images, we report the Inception Score, Frechet Inception Distance (FID), and average pairwise distance within batches as a diversity metric. For 3D models, we report the Chamfer Distance between generated and real 3D models, and the average pairwise distance between generated models.
 
 ## Results
 
 ### Image Generation Results
-Figure 1 shows the training curves for the DCG-GCANN on CelebA images versus the baseline DCGAN. While the losses for the baseline (a) rapidly diverge and fail to converge, the DCGGCANN (b) maintains tight convergence between the discriminator and generator losses throughout training. Qualitative results in Figure 2 show superior image quality, coherence and sample diversity from the DCGGCANN compared to the baseline.
+Figure 1 shows the training curves for the DCG-GCANN on CelebA images versus the baseline DCGAN. While the losses for the baseline (a) rapidly diverge and fail to converge, the DCG-GCANN (b) maintains tight convergence between the discriminator and generator losses throughout training. Qualitative results in Figure 2 show superior image quality, coherence, and sample diversity from the DCG-GCANN compared to the baseline.
 
-Table 1 quantifies the image generation results, with the DCGGCANN achieving higher Inception Score (IS) and lower Frechet Inception Distance (FID) indicating its generated images better match the real data distribution. Additionally, the average pairwise distance between generated samples within each batch is reported as a diversity metric, showing the DCG-GCANN produces more diverse samples than the baseline.
+Table 1 quantifies the image generation results, with the DCG-GCANN achieving a higher Inception Score (IS) and lower Frechet Inception Distance (FID) indicating its generated images better match the real data distribution. Additionally, the average pairwise distance between generated samples within each batch is reported as a diversity metric, showing the DCG-GCANN produces more diverse samples than the baseline.
 
 ### 3D Model Generation Results
 Similar trends are observed for the 3D generative DCG-GCANN trained on 3DBiCar. The baseline DCGAN losses diverge while the DCG-GCANN successfully prevents discriminator/generator divergence. The diversity loss curve again reflects the diversity penalty encouraging varied 3D model generation.  This stabilized training leads to higher quality 3D Biped Cartoon Characters model synthesis.
@@ -255,13 +263,13 @@ Evaluating with the Chamfer Distance metric, the 3D DCG-GCANN models have signif
 
 
 ## Discussion and Analysis
-The empirical results validate the efficacy of the proposed GCANN architecture in stabilizing adversarial training across diverse generative tasks. By dynamically adjusting the learning rates to maintain balanced convergence, the DCGGCANNs achieve higher quality image and 3D model synthesis compared to conventional GANs.
+The empirical results validate the efficacy of the proposed GCANN architecture in stabilizing adversarial training across diverse generative tasks. By dynamically adjusting the learning rates to maintain balanced convergence, the DCG-GCANNs achieve higher quality image and 3D model synthesis compared to conventional GANs.
 
 A key advantage of the GCANN approach is the proactive, adaptive learning rate adjustment based on anticipating divergence from the slope of the loss difference. By monitoring stable convergence regions, the slope_threshold automatically adjusts to be more sensitive as training progresses, allowing timely interventions before losses diverge. The slope-based adjustment complements the reactive loss thresholding, providing a comprehensive strategy for maintaining balanced discriminator/generator convergence throughout training. This multi-faceted guidance stabilizes adversarial dynamics, preventing typical failure modes like mode collapse.
 
 The incorporation of the diversity loss term into the generator's objective function further enhances the GCANN's ability to mitigate mode collapse. By penalizing repetitive samples generated within each batch at the specified diversity_check_interval, the diversity loss encourages the generator to produce more varied and diverse outputs. Scaling the diversity loss between the bottomend_diversity_loss and topend_diversity_loss thresholds allows bounding its impact during training.
 
-The GCANN introduces minimal computational overhead - it simply requires tracking D and G losses, calculating moving averages and slopes, computing the diversity loss at intervals, and applying simple scaling updates based on the monitoring results each iteration. The cooldown mechanism helps prevent overcorrection and instability during the adjustment process.
+The GCANN introduces minimal computational overhead - it simply requires tracking D and G losses, calculating moving averages and slopes, computing the diversity loss at intervals, and applying simple scaling updates based on the monitoring results of each iteration. The cooldown mechanism helps prevent overcorrection and instability during the adjustment process.
 
 Some other advantages of the GCANN approach are:
 
@@ -273,7 +281,7 @@ Stable Convergence: Directly optimizing for balanced convergence and sample dive
 
 Generalizable: While implemented for DCGANs, GCANNs can be applied to other adversarial training frameworks like VAEs, conditional GANs, semi-supervised learning, StyleGANs, etc.
 
-There are some current limitations of the GCANN approach. The dampening factors α/β, max_loss_diff threshold, pause thresholds, skip thresholds, skip iterations p, window size gc_lr_window, diversity_weight, and hyperparameters like target_slope_range are treated as global hyperparameters that need tuning for each task. An area for improvment would be automatically adapting these hyperparameters on a per-layer or per-batch basis based on the monitored convergence state.
+There are some current limitations of the GCANN approach. The dampening factors α/β, max_loss_diff threshold, pause thresholds, skip thresholds, skip iterations p, window size gc_lr_window, diversity_weight, and hyperparameters like target_slope_range are treated as global hyperparameters that need tuning for each task. An area for improvement would be automatically adapting these hyperparameters on a per-layer or per-batch basis based on the monitored convergence state.
 
 The slope-based adjustment mechanisms allow anticipating divergence by monitoring the loss difference slope against the adaptive slope_threshold and target_slope_range. However, the adjustment itself is still reactive to some degree - it corrects for impending divergences after detecting them through the slope monitoring indicators. An approach that can foresee divergences even further in advance, before slopes become problematic, could further improve training stability.
 
