@@ -300,4 +300,10 @@ Our experiments with Deep Convolutional GCANNs (DCG-GCANNs) for image and 3D mod
 The core GCANN framework is architecturally agnostic and applicable to various adversarial training settings like VAEs, conditional GANs, and semi-supervised learning. Future directions include automating hyperparameters, implementing anticipatory divergence prevention, and extending GCANNs to advanced GAN architectures like StyleGANs. GCANNs, with their ability to enforce convergence and diversity, represent a powerful approach for achieving robust and high-quality generative models across diverse applications.
 
 
-## more coming shortly...
+
+## License
+MIT License
+A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
+
+
+## More coming shortly...
