@@ -23,7 +23,11 @@ If losses begin to diverge indicating an imbalance, the learning rates are adjus
 
 These adjustments are dampened by scaling factors to reduce induced noise and instability. We also selectively skip training iterations for the overpowered network while allowing the counterpart lagging network to continue training for a few steps, adapting recent unrolled techniques to the GCANN framework. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment.
 
-We instantiate the GCANN architecture in two forms: 1) A Deep Convolutional Generative GCANN (DCG-GCANN) for image generation trained on the CelebA dataset, and 2) A DCG-GCANN for 3D model generation on the 3DBiCar dataset of 3D Biped Cartoon Characters. Compared to conventional GAN training, our DCG-GCANN models show improved convergence between the discriminator and generator losses during the training process. This increased stability results in higher visual quality for the generated images and 3D models.
+We instantiate the GCANN architecture in two forms: 
+1) A Deep Convolutional Generative GCANN (DCG-GCANN) for image generation trained on the CelebA dataset
+2) A DCG-GCANN for 3D model generation on the 3DBiCar dataset of 3D Biped Cartoon Characters.
+   
+Compared to conventional GAN training, our DCG-GCANN models show improved convergence between the discriminator and generator losses during the training process. This increased stability results in higher visual quality for the generated images and 3D models.
 
 While implemented specifically for DCGANs, the core GCANN architecture is broadly applicable to other forms of adversarial training like conditional GANs, VAEs, self-supervised learning, and beyond. The dynamic learning rate adjustment, with both reactive and proactive components based on loss monitoring and slope estimation, provides a simple yet powerful mechanism for maintaining balanced convergence to stabilize the adversarial training process.
 
@@ -224,15 +228,14 @@ Return: Trained D, G networks
 
 The key aspects are:
 
-Pause/skip training based on losses falling below/exceeding thresholds
-Calculate moving averages and loss diff slope over the window
-Detect stable convergence regions to adapt slope threshold
-Adjust learning rates if losses diverge or the slope exceeds the threshold
-Selectively skip training overpowered network for some iterations
-Use dampening factors and a cooldown period for stability
-Dynamic scaling of skip iterations and slope threshold
-Incorporate diversity loss into the generator objective
-Scale diversity loss between top-end and bottom-end bounds
+1) Adjust learning rates if losses diverge or the slope exceeds the threshold
+2) Calculate moving averages and loss diff slope over the window
+3) Detect stable convergence regions to adapt slope threshold
+4) Pause/skip training based on losses falling below/exceeding thresholds
+5) Selectively skip training overpowered network for some iterations
+6) Use dampening factors and a cooldown period for stability
+7) Dynamic scaling of skip iterations and slope threshold
+8) Incorporate diversity loss into the generator objective
 
 The dynamic pausing/skipping mechanisms along with the proactive slope-based adjustments and diversity loss allow the GCANN to maintain balanced discriminator/generator convergence and sample diversity throughout training.
 
