@@ -7,7 +7,7 @@
 
 ## Abstract
 
-We propose a new architecture for adversarial neural networks called Guided Convergence Adversarial Neural Networks (GCANNs). GCANNs introduce mechanisms to dynamically adjust the learning rates of the discriminator and generator networks during training based on monitoring their respective loss values and the slope of the loss difference over time. This allows for maintaining an optimal convergence state where neither network significantly overpowers the other. When losses diverge beyond set thresholds, or when the slope of the loss difference exceeds an adaptive threshold indicating impending divergence, the learning rates are adjusted proportionally to counteract the divergence. We also employ dampening techniques and selectively skip training iterations for the overpowered network to reduce noise and allow the lagging network to catch up. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment. Additionally, we incorporate a diversity loss term that penalizes repetitive generated samples within each batch to mitigate mode collapse. The diversity loss is calculated at a specified diversity check interval and scaled between a top-end and bottom-end diversity loss value. Our Deep Convolutional Generative GCANN (DCG-GCANN) models achieve improved training convergence, higher visual quality for generated images and 3D models, and better sample diversity compared to standard GAN training procedures. The GCANN represents a simple but effective approach for stabilizing adversarial training across diverse domains.
+I propose a new architecture for adversarial neural networks called Guided Convergence Adversarial Neural Networks (GCANNs). GCANNs introduce mechanisms to dynamically adjust the learning rates of the discriminator and generator networks during training based on monitoring their respective loss values and the slope of the loss difference over time. This allows for maintaining an optimal convergence state where neither network significantly overpowers the other. When losses diverge beyond set thresholds, or when the slope of the loss difference exceeds an adaptive threshold indicating impending divergence, the learning rates are adjusted proportionally to counteract the divergence. Also employ dampening techniques and selectively skip training iterations for the overpowered network to reduce noise and allow the lagging network to catch up. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment. Additionally, I incorporate a diversity loss term that penalizes repetitive generated samples within each batch to mitigate mode collapse. The diversity loss is calculated at a specified diversity check interval and scaled between a top-end and bottom-end diversity loss value. Our Deep Convolutional Generative GCANN (DCG-GCANN) models achieve improved training convergence, higher visual quality for generated images and 3D models, and better sample diversity compared to standard GAN training procedures. The GCANN represents a simple but effective approach for stabilizing adversarial training across diverse domains.
 
 ## Introduction
 
@@ -15,15 +15,15 @@ Generative adversarial networks (GANs) have become a widely used framework for g
 
 Conventional techniques for stabilizing GAN training like gradient penalties, spectral normalization, and learning rate scheduling have shown success to an extent. However, these methods are often heuristic in nature without directly optimizing for balanced discriminator/generator convergence. They also fail to adapt to the actual convergence state during the training process and cannot anticipate impending divergences before they occur. Approaches to mitigate mode collapse like mini-batch discrimination have helped but still struggle with preserving sample diversity.
 
-In this work, we propose a new Guided Convergence Adversarial Neural Network (GCANN) architecture that directly optimizes the learning procedure to maintain balanced discriminator/generator convergence throughout training. The key idea is to monitor the loss values of the discriminator and generator networks, as well as the slope of the loss difference over time. This allows dynamically adjusting their learning rates both reactively, based on the degree of loss divergence beyond set thresholds, and proactively, based on anticipating divergence from the slope of the loss difference.
+In this work, is proposed a new Guided Convergence Adversarial Neural Network (GCANN) architecture that directly optimizes the learning procedure to maintain balanced discriminator/generator convergence throughout training. The key idea is to monitor the loss values of the discriminator and generator networks, as well as the slope of the loss difference over time. This allows dynamically adjusting their learning rates both reactively, based on the degree of loss divergence beyond set thresholds, and proactively, based on anticipating divergence from the slope of the loss difference.
 
-To address mode collapse, we incorporate a diversity loss term into the generator's objective that penalizes repetitive samples being generated within each batch. The diversity loss is calculated by measuring the pairwise distances between generated samples in the batch at a specified diversity check interval. The diversity loss value is scaled between a top-end and bottom-end threshold to bound its impact.
+To address mode collapse, I incorporate a diversity loss term into the generator's objective that penalizes repetitive samples being generated within each batch. The diversity loss is calculated by measuring the pairwise distances between generated samples in the batch at a specified diversity check interval. The diversity loss value is scaled between a top-end and bottom-end threshold to bound its impact.
 
 If losses begin to diverge indicating an imbalance, the learning rates are adjusted proportionally to counteract - for example, if the discriminator loss becomes much lower than the generator loss, its learning rate is reduced to prevent it from overpowering the generator. Conversely, the generator learning rate is increased to allow it to catch up to the discriminator. Similarly, if the slope of the loss difference exceeds an adaptive threshold calculated from periods of stable convergence, the learning rates are adjusted proactively to prevent impending divergence before it occurs.
 
-These adjustments are dampened by scaling factors to reduce induced noise and instability. We also selectively skip training iterations for the overpowered network while allowing the counterpart lagging network to continue training for a few steps, adapting recent unrolled techniques to the GCANN framework. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment.
+These adjustments are dampened by scaling factors to reduce induced noise and instability. Training iterations are also selectively skipped for the overpowered network while allowing the counterpart lagging network to continue training for a few steps, adapting recent unrolled techniques to the GCANN framework. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment.
 
-We instantiate the GCANN architecture in two forms: 
+The GCANN architecture is instantiated in two forms: 
 1) A Deep Convolutional Generative GCANN (DCG-GCANN) for image generation trained on the CelebA dataset
 2) A DCG-GCANN for 3D model generation on the 3DBiCar dataset of 3D Biped Cartoon Characters.
    
@@ -50,7 +50,7 @@ Evaluating the DCG-GCANNs, showing improved training convergence, sample quality
 
 ## Background on Adversarial Training
 
-We first briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
+First lets briefly review the standard adversarial training formulation for GANs. Let G represent the generator network tasked with capturing the real data distribution p_data to generate samples G(z) from input random noise z. The discriminator network D aims to distinguish between the real samples from p_data and the generated "fake" samples from G. G and D are trained simultaneously via the following minimax objective:
 ```
 min_G max_D V(D,G) = E_{xp_data}[log D(x)] + E_{zp_z}[log(1-D(G(z)))]
 ```
@@ -67,7 +67,7 @@ In practice, G and D are implemented as deep neural networks like convolutional 
 
 The Guided Convergence Adversarial Neural Network (GCANN) introduces mechanisms to dynamically adjust the learning rates of the discriminator D and generator G based on monitoring their respective loss values and the slope of the loss difference during training. This allows maintaining an optimal convergence state where neither network overpowers the other.
 
-Let L_D and L_G represent the current losses for D and G respectively at iteration t. We define a max_loss_diff threshold that bounds the acceptable range of loss differences |L_D - L_G|. If the losses diverge beyond this threshold, the learning rates need adjusting:
+Let L_D and L_G represent the current losses for D and G respectively at iteration t. Define a max_loss_diff threshold that bounds the acceptable range of loss differences |L_D - L_G|. If the losses diverge beyond this threshold, the learning rates need adjusting:
 ```
 If L_D - L_G > max_loss_diff:
 Discriminator D is overpowering generator G
@@ -82,13 +82,13 @@ Increase D's learning rate: lr_D *= (1 + α)
 
 The learning rate adjustments are scaled by factors α and β in (0,1) to dampen the changes and reduce induced noise/instability.
 
-We also employ an "anticipatory" technique to proactively adjust the learning rates before divergence occurs, based on monitoring the slope of the loss difference over time. We define a window size gc_lr_window and calculate the moving averages d_loss_mean and g_loss_mean over the last gc_lr_window iterations:
+This approach also employ an "anticipatory" technique to proactively adjust the learning rates before divergence occurs, based on monitoring the slope of the loss difference over time. We define a window size gc_lr_window and calculate the moving averages d_loss_mean and g_loss_mean over the last gc_lr_window iterations:
 ```
 d_loss_mean = sum(L_D[t-gc_lr_window:t]) / gc_lr_window
 g_loss_mean = sum(L_G[t-gc_lr_window:t]) / gc_lr_window
 ```
 
-We then calculate the loss difference loss_diff = |d_loss_mean - g_loss_mean| and estimate its slope over the window:
+Then calculate the loss difference loss_diff = |d_loss_mean - g_loss_mean| and estimate its slope over the window:
 ```
 loss_diff_slope = (loss_diff - prev_loss_diff) / gc_lr_window
 ```
@@ -113,9 +113,9 @@ Skip p update steps for G while training D
 
 The proactive learning rate adjustment based on the adaptive slope_threshold allows for preventing divergence before it occurs, further stabilizing the adversarial training dynamics.
 
-We also selectively skip training iterations for the overpowered network while allowing the counterpart lagging network to continue training for a few steps p, adapting recent unrolled techniques to the GCANN framework. The number of iterations to skip (skip_iterations) is dynamically scaled by a factor skip_iter_scale which increases if the discriminator is lagging and decreases if it is overpowering.
+Training iterations are also selectively skipped for the overpowered network while allowing the counterpart lagging network to continue training for a few steps p, adapting recent unrolled techniques to the GCANN framework. The number of iterations to skip (skip_iterations) is dynamically scaled by a factor skip_iter_scale which increases if the discriminator is lagging and decreases if it is overpowering.
 
-To address mode collapse, we incorporate a diversity loss term L_div into the generator's objective to penalize repetitive samples being generated within each batch. The diversity loss is calculated by measuring the pairwise distances or dissimilarities between the generated samples in the current batch:
+To address mode collapse, this approach incorporates a diversity loss term L_div into the generator's objective to penalize repetitive samples being generated within each batch. The diversity loss is calculated by measuring the pairwise distances or dissimilarities between the generated samples in the current batch:
 ```
 L_div = diversity_metric(G(z))
 ```
@@ -129,7 +129,7 @@ min_G L_G + λ * L_div
 
 Where λ is a weighting factor diversity_weight controlling the strength of the diversity loss term. The diversity loss L_div is computed at a specified diversity_check_interval during training.
 
-To bound the impact of the diversity loss, we set a topend_diversity_loss and bottomend_diversity_loss threshold. The scaled diversity loss is computed as:
+To bound the impact of the diversity loss,  a topend_diversity_loss and bottomend_diversity_loss threshold are set. The scaled diversity loss is computed as:
 ```
 L_div_scaled = bottomend_diversity_loss + (L_div * diversity_weight) / (1 - exp(-topend_diversity_loss))
 ```
