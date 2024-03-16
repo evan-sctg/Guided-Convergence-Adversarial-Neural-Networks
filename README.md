@@ -148,7 +148,7 @@ Algorithm: GCANN Training
 
 Input: Initial D, G learning rates lr_D, lr_G; adjustment dampenings α, β; skipping steps p; high threshold max_loss_diff; window size gc_lr_window; cooldown period cooldown_period; pause thresholds discriminator_pause_threshold, generator_pause_threshold; skip thresholds discriminator_skip_threshold, generator_skip_threshold; max skip iterations max_skip_iterations; target slope range target_slope_range; diversity_weight; diversity_check_interval; topend_diversity_loss; bottomend_diversity_loss
 
-Initialize: slope_threshold, max_stable_slope, stable_region_start_idx, stable_region_end_idx, loss_diff_slopes, iterations_since_last_adjustment = 0, skip_iter_scale, slope_thresh_scale
+Initialize dynamically tuned parameters: slope_threshold, max_stable_slope, stable_region_start_idx, stable_region_end_idx, loss_diff_slopes, skip_iter_scale, slope_thresh_scale
 
 While not converged:
 ```
