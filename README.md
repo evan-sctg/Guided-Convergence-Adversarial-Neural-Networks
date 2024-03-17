@@ -306,4 +306,11 @@ MIT License
 A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
 
 
+## ---
+@inproceedings{estal2024gcann,
+  title={Guided Convergence Adversarial Neural Networks (GCANN)},
+  author={Estal, Evan},
+  year={2024},
+}
+
 ## More coming shortly...
