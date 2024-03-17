@@ -6,7 +6,10 @@
 
 
 ## Abstract
-Proposed in this paper is a new architecture for adversarial neural networks called Guided Convergence Adversarial Neural Networks (GCANNs). GCANNs introduce mechanisms to dynamically adjust the learning rates of the discriminator and generator networks during training based on monitoring their respective loss values and the slope of the loss difference over time. This allows for maintaining an optimal convergence state where neither network significantly overpowers the other. When losses diverge beyond set thresholds, or when the slope of the loss difference exceeds an adaptive threshold indicating impending divergence, the learning rates are adjusted proportionally to counteract the divergence. Also employ dampening techniques and selectively skip training iterations for the overpowered network to reduce noise and allow the lagging network to catch up. To prevent overcorrection and instability, a cooldown period is introduced where no adjustments are made for a certain number of iterations after a previous adjustment. Additionally, This approach incorporates a diversity loss term that penalizes repetitive generated samples within each batch to mitigate mode collapse. The diversity loss is calculated at a specified diversity check interval and scaled between a top-end and bottom-end diversity loss value. Our Deep Convolutional Generative GCANN (DCG-GCANN) models achieve improved training convergence, higher visual quality for generated images and 3D models, and better sample diversity compared to standard GAN training procedures. The GCANN represents a simple but effective approach for stabilizing adversarial training across diverse domains.
+
+Guided Convergence Adversarial Neural Networks (GCANNs) are a new architecture that stabilizes adversarial training across diverse Adversarial Neural Network (ANN) applications. Traditional ANNs often suffer from imbalanced convergence between the competing networks, leading to training instability and suboptimal performance. GCANNs address these issues by dynamically adjusting the learning rates based on monitoring the networks' loss values and the slope of the loss difference over time. When losses diverge or the slope indicates impending divergence, the learning rates are adjusted proportionally to maintain an optimal convergence state. GCANNs also employ dampening techniques, selectively skip iterations for the overpowered network, and introduce a cooldown period after adjustments for stability.
+
+Additionally, GCANNs incorporate a diversity loss term to encourage the networks to produce diverse outputs, preventing mode collapse. The diversity loss penalizes repetitive samples and is computed at specified intervals. Experiments across multiple ANN tasks, including image/3D model generation, demonstrate that GCANNs achieve improved training convergence and better performance compared to conventional approaches. The GCANN framework is architecture-agnostic and widely applicable, representing an effective technique for stabilizing adversarial training to enhance ANN model quality.
 
 ## Introduction
 
@@ -307,7 +310,7 @@ The core GCANN framework is architecturally agnostic and applicable to various a
 
 [4] CelebFaces Attributes Dataset (CelebA) is a large-scale face attributes dataset with more than 200K celebrity images. https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
 
-[5] The First Large-Scale Dataset of 3D Biped Cartoon Characters with 1,500 high-quality 3D models. https://gaplab.cuhk.edu.cn/projects/RaBit/dataset.html
+[5] 3DBiCar The First Large-Scale Dataset of 3D Biped Cartoon Characters with 1,500 high-quality 3D models. https://gaplab.cuhk.edu.cn/projects/RaBit/dataset.html
 
 
 ## License
