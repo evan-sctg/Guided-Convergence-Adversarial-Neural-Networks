@@ -324,10 +324,12 @@ A short and simple permissive license with conditions only requiring preservatio
 ## Citation
 Please cite this work as an acknowledgment.
 
+```
 @inproceedings{estal2024gcann,
-  title={Guided Convergence Adversarial Neural Networks (GCANN)},
-  author={Estal, Evan},
-  year={2024},
+  title={Guided Convergence Adversarial Neural Networks (GCANN)},  
+  author={Estal, Evan},  
+  year={2024},  
 }
+```
 
 ## More coming shortly...
