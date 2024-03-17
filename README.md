@@ -251,7 +251,7 @@ DCG-GCANN for 3D Model Generation: We also apply the GCANN to 3D generative mode
 
 For both experiments, we train our GCANNs and baselines for 100 epochs with a batch size of 128. We compare the discriminator and generator losses, their convergence over training, the diversity loss curves, as well as the visual quality of generated samples. For images, we report the Inception Score, Frechet Inception Distance (FID), and average pairwise distance within batches as a diversity metric. For 3D models, we report the Chamfer Distance between generated and real 3D models, and the average pairwise distance between generated models.
 
-## Results
+## Results (draft)
 
 ### Image Generation Results
 Figure 1 shows the training curves for the DCG-GCANN on CelebA images versus the baseline DCGAN. While the losses for the baseline (a) rapidly diverge and fail to converge, the DCG-GCANN (b) maintains tight convergence between the discriminator and generator losses throughout training. Qualitative results in Figure 2 show superior image quality, coherence, and sample diversity from the DCG-GCANN compared to the baseline.
@@ -264,7 +264,7 @@ Similar trends are observed for the 3D generative DCG-GCANN trained on 3DBiCar. 
 Evaluating with the Chamfer Distance metric, the 3D DCG-GCANN models have significantly lower distortion compared to ground truth models versus the DCGAN baseline, quantitatively confirming the visual results. The average pairwise distance between generated 3D models is also higher for the DCG-GCANN, demonstrating improved sample diversity.
 
 
-## Discussion and Analysis
+## Discussion and Analysis (draft)
 The empirical results validate the efficacy of the proposed GCANN architecture in stabilizing adversarial training across diverse generative tasks. By dynamically adjusting the learning rates to maintain balanced convergence, the DCG-GCANNs achieve higher quality image and 3D model synthesis compared to conventional GANs.
 
 A key advantage of the GCANN approach is the proactive, adaptive learning rate adjustment based on anticipating divergence from the slope of the loss difference. By monitoring stable convergence regions, the slope_threshold automatically adjusts to be more sensitive as training progresses, allowing timely interventions before losses diverge. The slope-based adjustment complements the reactive loss thresholding, providing a comprehensive strategy for maintaining balanced discriminator/generator convergence throughout training. This multi-faceted guidance stabilizes adversarial dynamics, preventing typical failure modes like mode collapse.
@@ -290,7 +290,7 @@ The slope-based adjustment mechanisms allow anticipating divergence by monitorin
 Finally, extending GCANNs to advanced GAN architectures like StyleGANs, diffusion models, and others is an important next step. The diversity loss formulation may need adjustments to account for the differences in these more complex generative models.
 
 
-## Conclusion
+## Conclusion (draft)
 
 In this work, we introduced Guided Convergence Adversarial Neural Networks (GCANNs), a novel architecture that significantly improves adversarial training stability and generative model performance. GCANNs achieve this by dynamically adjusting learning rates based on loss monitoring and slope estimation, ensuring balanced convergence between the discriminator and generator. Additionally, a diversity loss term penalizes repetitive sample generation, mitigating mode collapse.
 
@@ -298,6 +298,16 @@ Our experiments with Deep Convolutional GCANNs (DCG-GCANNs) for image and 3D mod
 
 The core GCANN framework is architecturally agnostic and applicable to various adversarial training settings like VAEs, conditional GANs, and semi-supervised learning. Future directions include automating hyperparameters, implementing anticipatory divergence prevention, and extending GCANNs to advanced GAN architectures like StyleGANs. GCANNs, with their ability to enforce convergence and diversity, represent a powerful approach for achieving robust and high-quality generative models across diverse applications.
 
+## References (draft)
+[1] The Deep Convolutional Generative Adversarial Networks (DCGAN) - introduced by Alec Radford et al.  arXiv:1511.06434 [cs.LG] https://arxiv.org/pdf/1701.07875.pdf
+
+[2] The Wasserstein GAN (WGAN) - introduced by Martin Arjovsky, et al. arXiv:1701.07875v3 [stat.ML] https://arxiv.org/pdf/1701.07875.pdf
+
+[3] The Unrolled GAN - introduced by Luke Metz, et al. arXiv:1611.02163 [cs.LG] https://arxiv.org/pdf/1611.02163.pdf
+
+[4] CelebFaces Attributes Dataset (CelebA) is a large-scale face attributes dataset with more than 200K celebrity images. https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+
+[5] The First Large-Scale Dataset of 3D Biped Cartoon Characters with 1,500 high-quality 3D models. https://gaplab.cuhk.edu.cn/projects/RaBit/dataset.html
 
 
 ## License
@@ -306,7 +316,9 @@ MIT License
 A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
 
 
-## ---
+## Citation
+Please cite this work as an acknowledgment.
+
 @inproceedings{estal2024gcann,
   title={Guided Convergence Adversarial Neural Networks (GCANN)},
   author={Estal, Evan},
