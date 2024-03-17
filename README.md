@@ -304,13 +304,15 @@ The core GCANN framework is architecturally agnostic and applicable to various a
 ## References (draft)
 [1] The Deep Convolutional Generative Adversarial Networks (DCGAN) - introduced by Alec Radford et al.  arXiv:1511.06434 [cs.LG] https://arxiv.org/pdf/1701.07875.pdf
 
-[2] The Wasserstein GAN (WGAN) - introduced by Martin Arjovsky, et al. arXiv:1701.07875v3 [stat.ML] https://arxiv.org/pdf/1701.07875.pdf
+[2] Generative Adversarial Networks (GAN) - introduced by Ian Goodfellow et al.  arXiv:1406.2661 [stat.ML] https://arxiv.org/pdf/1406.2661.pdf
 
-[3] The Unrolled GAN - introduced by Luke Metz, et al. arXiv:1611.02163 [cs.LG] https://arxiv.org/pdf/1611.02163.pdf
+[3] The Wasserstein GAN (WGAN) - introduced by Martin Arjovsky, et al. arXiv:1701.07875v3 [stat.ML] https://arxiv.org/pdf/1701.07875.pdf
 
-[4] CelebFaces Attributes Dataset (CelebA) is a large-scale face attributes dataset with more than 200K celebrity images. https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+[4] The Unrolled GAN - introduced by Luke Metz, et al. arXiv:1611.02163 [cs.LG] https://arxiv.org/pdf/1611.02163.pdf
 
-[5] 3DBiCar The First Large-Scale Dataset of 3D Biped Cartoon Characters with 1,500 high-quality 3D models. https://gaplab.cuhk.edu.cn/projects/RaBit/dataset.html
+[5] CelebFaces Attributes Dataset (CelebA) is a large-scale face attributes dataset with more than 200K celebrity images. https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+
+[6] 3DBiCar The First Large-Scale Dataset of 3D Biped Cartoon Characters with 1,500 high-quality 3D models. https://gaplab.cuhk.edu.cn/projects/RaBit/dataset.html
 
 
 ## License
