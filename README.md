@@ -29,7 +29,7 @@ The GCANN architecture is instantiated in two forms:
 1) A Deep Convolutional Generative GCANN (DCG-GCANN) for image generation trained on the CelebA dataset
 2) A DCG-GCANN for 3D model generation on the 3DBiCar dataset of 3D Biped Cartoon Characters.
    
-Compared to conventional GAN training, our DCG-GCANN models show improved convergence between the discriminator and generator losses during the training process. This increased stability results in higher visual quality for the generated images and 3D models.
+Compared to conventional GAN training, DCG-GCANN models show improved convergence between the discriminator and generator losses during the training process. This increased stability results in higher visual quality for the generated images and 3D models.
 
 While implemented specifically for DCGANs, the core GCANN architecture is broadly applicable to other forms of adversarial training like conditional GANs, VAEs, self-supervised learning, and beyond. The dynamic learning rate adjustment, with both reactive and proactive components based on loss monitoring and slope estimation, provides a simple yet powerful mechanism for maintaining balanced convergence to stabilize the adversarial training process.
 
@@ -84,7 +84,7 @@ Increase D's learning rate: lr_D *= (1 + α)
 
 The learning rate adjustments are scaled by factors α and β in (0,1) to dampen the changes and reduce induced noise/instability.
 
-This approach also employ an "anticipatory" technique to proactively adjust the learning rates before divergence occurs, based on monitoring the slope of the loss difference over time. We define a window size gc_lr_window and calculate the moving averages d_loss_mean and g_loss_mean over the last gc_lr_window iterations:
+This approach also employ an "anticipatory" technique to proactively adjust the learning rates before divergence occurs, based on monitoring the slope of the loss difference over time. The moving averages d_loss_mean and g_loss_mean are calculated over the last gc_lr_window iterations:
 ```
 d_loss_mean = sum(L_D[t-gc_lr_window:t]) / gc_lr_window
 g_loss_mean = sum(L_G[t-gc_lr_window:t]) / gc_lr_window
@@ -246,13 +246,13 @@ The dynamic pausing/skipping mechanisms along with the proactive slope-based adj
 The GCANN introduces minimal computational overhead - it simply requires tracking D and G losses, calculating moving averages and slopes, and applying simple scaling updates to the learning rates and skipping iterations based on the monitoring results each iteration. The cooldown mechanism helps prevent overcorrection and instability during the adjustment process.
 
 Experimental Setup
-We instantiate and evaluate the GCANN architecture on two generative modeling tasks:
+The GCANN architecture was applied to two generative modeling tasks For evaluation:
 
-DCG-GCANN for Image Generation: We apply the GCANN mechanisms to a Deep Convolutional GAN (DCGAN) architecture for generating images on the CelebA dataset of celebrity face images at 64x64 resolution. Key hyperparameters are: max_loss_diff=3, target_slope_range=(-0.1, 0.1), gc_lr_window=100, discriminator_pause_threshold=0.025, generator_pause_threshold=0.01, discriminator_skip_threshold=0.05, generator_skip_threshold=0.05, max_skip_iterations=25, cooldown_period=100, baseline_epochs=1, diversity_weight=1, diversity_check_interval=5, topend_diversity_loss=3, bottomend_diversity_loss=0.001.
+DCG-GCANN for Image Generation: This evaluation project applies the GCANN mechanisms to a Deep Convolutional GAN (DCGAN) architecture for generating images on the CelebA dataset of celebrity face images at 64x64 resolution. Key hyperparameters are: max_loss_diff=3, target_slope_range=(-0.1, 0.1), gc_lr_window=100, discriminator_pause_threshold=0.025, generator_pause_threshold=0.01, discriminator_skip_threshold=0.05, generator_skip_threshold=0.05, max_skip_iterations=25, cooldown_period=100, baseline_epochs=1, diversity_weight=1, diversity_check_interval=5, topend_diversity_loss=3, bottomend_diversity_loss=0.001.
 
-DCG-GCANN for 3D Model Generation: We also apply the GCANN to 3D generative modeling using a DCGAN architecture that takes input random noise and generates voxelized 3D shapes. We train this 3D DCG-GCANN on the 3DBiCar dataset containing renderings of 3D Biped Cartoon Characters. Initial learning rates are lr_D=1e-4, lr_G=1e-4 with dampening α=0.8, β=0.6, max_loss_diff=3, diversity_weight=1, diversity_check_interval=10, topend_diversity_loss=5, bottomend_diversity_loss=0.01 and a cooldown period of 150 iterations. Separate variables are used for pausing and skipping, with a target_slope_range of (0.001, 0.2) and a maximum of 30 skipped iterations.
+DCG-GCANN for 3D Model Generation: This evaluation project also applies the GCANN to 3D generative modeling using a DCGAN architecture that takes input random noise and generates voxelized 3D shapes. This 3D DCG-GCANN is trained on the 3DBiCar dataset containing renderings of 3D Biped Cartoon Characters. Initial learning rates are lr_D=1e-4, lr_G=1e-4 with dampening α=0.8, β=0.6, max_loss_diff=3, diversity_weight=1, diversity_check_interval=10, topend_diversity_loss=5, bottomend_diversity_loss=0.01 and a cooldown period of 150 iterations. Separate variables are used for pausing and skipping, with a target_slope_range of (0.001, 0.2) and a maximum of 30 skipped iterations.
 
-For both experiments, we train our GCANNs and baselines for 100 epochs with a batch size of 128. We compare the discriminator and generator losses, their convergence over training, the diversity loss curves, as well as the visual quality of generated samples. For images, we report the Inception Score, Frechet Inception Distance (FID), and average pairwise distance within batches as a diversity metric. For 3D models, we report the Chamfer Distance between generated and real 3D models, and the average pairwise distance between generated models.
+For both experiments, The GCANNs and baselines are trained for 100 epochs with a batch size of 128. The discriminator and generator losses, their convergence over training, the diversity loss curves, as well as the visual quality of generated samples were compared.
 
 ## Results (draft)
 
@@ -295,9 +295,9 @@ Finally, extending GCANNs to advanced GAN architectures like StyleGANs, diffusio
 
 ## Conclusion (draft)
 
-In this work, we introduced Guided Convergence Adversarial Neural Networks (GCANNs), a novel architecture that significantly improves adversarial training stability and generative model performance. GCANNs achieve this by dynamically adjusting learning rates based on loss monitoring and slope estimation, ensuring balanced convergence between the discriminator and generator. Additionally, a diversity loss term penalizes repetitive sample generation, mitigating mode collapse.
+This research introduces Guided Convergence Adversarial Neural Networks (GCANNs), a novel architecture that significantly improves adversarial training stability and generative model performance. GCANNs achieve this by dynamically adjusting learning rates based on loss monitoring and slope estimation, ensuring balanced convergence between the discriminator and generator. Additionally, a diversity loss term penalizes repetitive sample generation, mitigating mode collapse.
 
-Our experiments with Deep Convolutional GCANNs (DCG-GCANNs) for image and 3D model generation tasks demonstrate clear advantages over conventional GAN training. DCG-GCANNs achieve improved convergence, higher Inception Score (IS), lower Frechet Inception Distance (FID) for images, and lower Chamfer Distance for 3D models, along with superior visual quality and sample diversity.
+These experiments with Deep Convolutional GCANNs (DCG-GCANNs) for image and 3D model generation tasks demonstrate clear advantages over conventional GAN training. DCG-GCANNs achieve improved convergence, higher Inception Score (IS), lower Frechet Inception Distance (FID) for images, and lower Chamfer Distance for 3D models, along with superior visual quality and sample diversity.
 
 The core GCANN framework is architecturally agnostic and applicable to various adversarial training settings like VAEs, conditional GANs, and semi-supervised learning. Future directions include automating hyperparameters, implementing anticipatory divergence prevention, and extending GCANNs to advanced GAN architectures like StyleGANs. GCANNs, with their ability to enforce convergence and diversity, represent a powerful approach for achieving robust and high-quality generative models across diverse applications.
 
